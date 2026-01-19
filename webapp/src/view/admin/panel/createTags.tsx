@@ -17,9 +17,8 @@ import { Box, Button, Chip, TextField, Typography, useTheme } from "@mui/materia
 import { useFormik } from "formik";
 import * as Yup from "yup";
 
-import { RootState, useAppDispatch, useAppSelector } from "@root/src/slices/store";
-import { State } from "@root/src/types/types";
-import { createTags, fetchTags } from "@slices/tagSlice/tag";
+import { useCreateTagMutation, useGetTagsQuery } from "@root/src/services/tag.api";
+import { useGetUserInfoQuery } from "@root/src/services/user.api";
 
 interface Tag {
   name: string;
@@ -37,9 +36,11 @@ const validationSchema = Yup.object({
 });
 
 export default function CreateTags() {
-  const { submitState, tags } = useAppSelector((state: RootState) => state.tag);
-  const dispatch = useAppDispatch();
-  const userInfo = useAppSelector((state: RootState) => state.user.userInfo);
+  // RTK Query hooks
+  const { data: userInfo } = useGetUserInfoQuery();
+  const { data: tags = [] } = useGetTagsQuery();
+  const [createTagMutation, { isLoading: isCreating }] = useCreateTagMutation();
+
   const userEmail = userInfo?.workEmail ?? "";
   const theme = useTheme();
 
@@ -56,11 +57,11 @@ export default function CreateTags() {
         addedBy: userEmail,
       };
 
-      const result = await dispatch(createTags(requestPayload));
-
-      if (createTags.fulfilled.match(result)) {
+      try {
+        await createTagMutation(requestPayload).unwrap();
         formik.resetForm();
-        dispatch(fetchTags());
+      } catch (error) {
+        console.error("Failed to create tag:", error);
       }
     },
   });
@@ -110,7 +111,7 @@ export default function CreateTags() {
                 onBlur={formik.handleBlur}
                 error={formik.touched.name && Boolean(formik.errors.name)}
                 helperText={formik.touched.name && formik.errors.name}
-                disabled={submitState === State.loading}
+                disabled={isCreating}
               />
             </Box>
 
@@ -125,7 +126,7 @@ export default function CreateTags() {
                 onBlur={formik.handleBlur}
                 error={formik.touched.color && Boolean(formik.errors.color)}
                 helperText={formik.touched.color && formik.errors.color}
-                disabled={submitState === State.loading}
+                disabled={isCreating}
               />
             </Box>
           </Box>
@@ -139,7 +140,7 @@ export default function CreateTags() {
             }}
           >
             <Button
-              disabled={submitState === State.loading}
+              disabled={isCreating}
               onClick={() => {
                 formik.resetForm();
               }}
@@ -148,12 +149,8 @@ export default function CreateTags() {
               Cancel
             </Button>
 
-            <Button
-              type="submit"
-              variant="contained"
-              disabled={submitState === State.loading || !formik.isValid}
-            >
-              {submitState === State.loading ? "Creating..." : "Create Tag"}
+            <Button type="submit" variant="contained" disabled={isCreating || !formik.isValid}>
+              {isCreating ? "Creating..." : "Create Tag"}
             </Button>
           </Box>
         </form>

@@ -16,11 +16,16 @@
 import { Grid } from "@mui/material";
 
 import ErrorHandler from "@component/common/ErrorHandler";
-import { RootState, useAppSelector } from "@root/src/slices/store";
+import { useGetUserAppsQuery } from "@root/src/services/app.api";
+import { useGetUserInfoQuery } from "@root/src/services/user.api";
 import AppCard from "@view/home/components/AppCard";
 
 function Favourites() {
-  const apps = useAppSelector((state: RootState) => state.app.userApps);
+  const { data: userInfo } = useGetUserInfoQuery();
+  const { data: apps = [] } = useGetUserAppsQuery(userInfo?.workEmail ?? "", {
+    skip: !userInfo?.workEmail,
+  });
+
   const favApps = apps?.filter((app) => app.isFavourite === 1) || [];
 
   return (
