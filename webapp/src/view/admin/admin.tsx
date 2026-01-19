@@ -17,23 +17,13 @@ import AddBoxOutlinedIcon from "@mui/icons-material/AddBoxOutlined";
 import DrawOutlinedIcon from "@mui/icons-material/DrawOutlined";
 import StyleOutlinedIcon from "@mui/icons-material/StyleOutlined";
 
-import { useEffect } from "react";
-
 import TabsPage from "@layout/pages/TabsPage";
-import { fetchApps } from "@root/src/slices/appSlice/app";
-import { useAppDispatch } from "@root/src/slices/store";
 
-import CreateApp from "./panel/createApp";
+import CreateApp from "./panel/create-app/createApp";
 import CreateTags from "./panel/createTags";
 import UpdateApp from "./panel/updateApp";
 
 export default function Admin() {
-  const dispatch = useAppDispatch();
-
-  useEffect(() => {
-    dispatch(fetchApps());
-  }, [dispatch]);
-
   return (
     <TabsPage
       title={"Admin"}
