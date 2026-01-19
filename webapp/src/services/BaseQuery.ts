@@ -1,4 +1,4 @@
-// Copyright (c) 2025 WSO2 LLC. (https://www.wso2.com).
+// Copyright (c) 2026 WSO2 LLC. (https://www.wso2.com).
 //
 // WSO2 LLC. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -17,16 +17,16 @@ import { fetchBaseQuery, retry } from "@reduxjs/toolkit/query";
 import type { BaseQueryFn, FetchArgs, FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { Mutex } from "async-mutex";
 
-import { SERVICE_BASE_URL } from "../config/config";
+import { SERVICE_BASE_URL } from "@config/config";
 
 let ACCESS_TOKEN: string;
-let REFRESH_TOKEN_CALLBACK: () => Promise<{ accessToken: string }>;
-let LOGOUT_CALLBACK: () => void;
+let REFRESH_TOKEN_CALLBACK: (() => Promise<{ accessToken: string }>) | null;
+let LOGOUT_CALLBACK: (() => void) | null;
 
 export const setTokens = (
   accessToken: string,
-  refreshCallback: () => Promise<{ accessToken: string }>,
-  logoutCallBack: () => void,
+  refreshCallback: (() => Promise<{ accessToken: string }>) | null,
+  logoutCallBack: (() => void) | null,
 ) => {
   ACCESS_TOKEN = accessToken;
   REFRESH_TOKEN_CALLBACK = refreshCallback;
@@ -37,7 +37,8 @@ const baseQuery = fetchBaseQuery({
   baseUrl: SERVICE_BASE_URL,
   prepareHeaders: (headers) => {
     if (ACCESS_TOKEN) {
-      headers.set("Authorization", `Bearer ${ACCESS_TOKEN}`);
+      // headers.set("Authorization", `Bearer ${ACCESS_TOKEN}`);
+      headers.set("x-jwt-assertion", ACCESS_TOKEN);
     }
   },
 });
@@ -50,21 +51,29 @@ export const baseQueryWithReauth: BaseQueryFn<
 > = async (args, api, extraOptions) => {
   await mutex.waitForUnlock();
   let result = await baseQuery(args, api, extraOptions);
+
   if (result.error && result.error.status === 401) {
     if (!mutex.isLocked()) {
       const release = await mutex.acquire();
 
       try {
-        const refreshResult = await REFRESH_TOKEN_CALLBACK();
-        if (refreshResult?.accessToken) {
-          ACCESS_TOKEN = refreshResult.accessToken;
-          result = await baseQuery(args, api, extraOptions);
+        if (REFRESH_TOKEN_CALLBACK) {
+          const refreshResult = await REFRESH_TOKEN_CALLBACK();
+
+          if (refreshResult?.accessToken) {
+            ACCESS_TOKEN = refreshResult.accessToken;
+            result = await baseQuery(args, api, extraOptions);
+          } else {
+            console.error("Token refresh failed - no access token returned");
+            if (LOGOUT_CALLBACK) LOGOUT_CALLBACK();
+          }
         } else {
-          console.error("Token refresh failed - no access token returned");
-          LOGOUT_CALLBACK();
+          console.error("No refresh token callback available");
+          if (LOGOUT_CALLBACK) LOGOUT_CALLBACK();
         }
       } catch (error) {
         console.error("Error refreshing token:", error);
+        if (LOGOUT_CALLBACK) LOGOUT_CALLBACK();
       } finally {
         release();
       }
@@ -86,7 +95,7 @@ export const baseQueryWithRetry = retry(
     const result = await baseQueryWithReauth(args, api, extraOptions);
 
     if (result.error) {
-      if (result.error.status !== 401) {
+      if (result.error.status !== 400 && result.error.status !== 404) {
         retry.fail(result.error, result.meta);
       }
     }
@@ -95,5 +104,9 @@ export const baseQueryWithRetry = retry(
   },
   {
     maxRetries: 3,
+    backoff: async (attempt: number = 0, maxRetries: number = 3) => {
+      const delay = Math.min(1000 * 2 ** attempt, 10000);
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    },
   },
 );
