@@ -22,16 +22,16 @@ export type NavState = {
   expanded: number | null;
 };
 
-export enum State {
-  failed = "failed",
-  success = "success",
-  loading = "loading",
-  idle = "idle",
+export enum MicroAppType {
+  Menu = "MENU_APP",
+  Dod = "DOD_APP",
 }
 
-export enum Role {
-  ADMIN = "ADMIN",
-  EMPLOYEE = "EMPLOYEE",
+export enum AppState {
+  Maintenance = "MAINTENANCE",
+  Failed = "FAILED",
+  Success = "SUCCESS",
+  Loading = "LOADING",
 }
 
 export enum UpdateAction {
@@ -42,40 +42,6 @@ export enum UpdateAction {
 // Auth-related types
 export interface ExtendedDecodedIDTokenPayload extends DecodedIDTokenPayload {
   groups?: string[];
-}
-
-export interface AuthState {
-  status: State;
-  mode: "active" | "maintenance";
-  statusMessage: string | null;
-  userInfo: BasicUserInfo | null;
-  decodedIdToken: ExtendedDecodedIDTokenPayload | null;
-  roles: Role[];
-}
-
-export interface AuthData {
-  userInfo: BasicUserInfo;
-  decodedIdToken: ExtendedDecodedIDTokenPayload;
-}
-
-export interface UserInfoInterface {
-  employeeId: string;
-  firstName: string;
-  lastName: string;
-  workEmail: string;
-  employeeThumbnail: string | null;
-  jobRole: string;
-  privileges: number[];
-  managerEmail: string;
-  department: string;
-  team: string;
-}
-
-export interface UserState {
-  state: State;
-  stateMessage: string | null;
-  errorMessage: string | null;
-  userInfo: UserInfoInterface | null;
 }
 
 export enum ConfirmationType {
