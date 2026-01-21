@@ -16,6 +16,7 @@
 import web_app_marketplace.authorization;
 import web_app_marketplace.database;
 import web_app_marketplace.people;
+import web_app_marketplace.scim;
 
 import ballerina/cache;
 import ballerina/file;
@@ -39,7 +40,7 @@ service http:InterceptableService / on new http:Listener(9090) {
     #
     # + return - authorization:JwtInterceptor, BadRequestInterceptor
     public function createInterceptors() returns http:Interceptor[] =>
-        [new authorization:JwtInterceptor(), new BadRequestInterceptor()];
+        [new authorization:JwtInterceptor()];
 
     # Fetch logged-in user's details.
     #
@@ -341,8 +342,9 @@ service http:InterceptableService / on new http:Listener(9090) {
     # Get valid user groups.
     #
     # + return - Array of user groups, or Forbidden/InternalServerError
-    resource function get user\-groups(http:RequestContext ctx) returns string[]|http:Forbidden|http:InternalServerError {
+    resource function get user\-groups(http:RequestContext ctx) returns string[]|http:InternalServerError|error {
         authorization:CustomJwtPayload|error userInfo = ctx.getWithType(authorization:HEADER_USER_INFO);
+
         if userInfo is error {
             log:printError(USER_NOT_FOUND_ERROR, userInfo);
             return <http:InternalServerError>{
@@ -350,28 +352,26 @@ service http:InterceptableService / on new http:Listener(9090) {
             };
         }
 
-        string[]|error validUserGroups = database:fetchUserGroups();
-        if validUserGroups is error {
-            string customError = "Error occurred while retrieving user groups";
-            log:printError(customError, validUserGroups);
-            return <http:InternalServerError>{
-                body: {
-                    message: customError
+        Filter filter = {
+            filter: null
+        };
+
+        GroupSearchResult|error skimGroups = scim:getGroups(filter);
+        if skimGroups is error {
+            log:printError("Error retrieving user groups : ", skimGroups);
+            return <http:InternalServerError> {
+                body:  {
+                    message: "Error retrieving user groups"
                 }
             };
         }
 
-        if validUserGroups.length() == 0 {
-            string customError = "There are no user groups. Before adding user groups you have to create new user groups";
-            log:printError(customError);
-            return <http:InternalServerError>{
-                body: {
-                    message: customError
-                }
-            };
+        string[] userGroups = [];
+        foreach Group groups in skimGroups.Resources {
+            userGroups.push(groups.displayName.substring(8));
         }
 
-        return validUserGroups;
+        return userGroups; 
     }
 
     # Get tags.
