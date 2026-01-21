@@ -17,6 +17,7 @@ import { createApi } from "@reduxjs/toolkit/query/react";
 
 import { AppConfig } from "@config/config";
 
+import { enqueueSnackbarMessage } from "@slices/commonSlice/common";
 import { baseQueryWithRetry } from "./BaseQuery";
 
 export type Tag = {
@@ -51,6 +52,24 @@ export const tagApi = createApi({
         body: payload,
       }),
       invalidatesTags: ["Tags"],
+      async onQueryStarted(_payload, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(
+            enqueueSnackbarMessage({
+              message: `Tag '${_payload.name}' successfully created`,
+              type: "success",
+            }),
+          );
+        } catch (error: any) {
+          dispatch(
+            enqueueSnackbarMessage({
+              message: `Failed to create tag '${_payload.name}'.`,
+              type: "error",
+            }),
+          );
+        }
+      },
     }),
   }),
 });

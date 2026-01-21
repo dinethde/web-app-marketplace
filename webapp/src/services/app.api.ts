@@ -17,8 +17,11 @@ import { createApi } from "@reduxjs/toolkit/query/react";
 
 import { AppConfig } from "@config/config";
 import { UpdateAction } from "@root/src/types/types";
+import { enqueueSnackbarMessage } from "@slices/commonSlice/common";
 
+import { RootState } from "@slices/store";
 import { baseQueryWithRetry } from "./BaseQuery";
+import { userApi } from "./user.api";
 
 export type Tag = {
   id: number;
@@ -100,6 +103,24 @@ export const appApi = createApi({
         body: payload,
       }),
       invalidatesTags: ["Apps", "UserApps"],
+      async onQueryStarted(payload, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(
+            enqueueSnackbarMessage({
+              message: `App '${payload.name}' successfully created`,
+              type: "success",
+            }),
+          );
+        } catch (error: any) {
+          dispatch(
+            enqueueSnackbarMessage({
+              message: `Failed to create app '${payload.name}'.`,
+              type: "error",
+            }),
+          );
+        }
+      },
     }),
     updateApp: builder.mutation<AppResponse, { id: number; payload: UpdateAppPayload }>({
       query: ({ id, payload }) => ({
@@ -108,17 +129,37 @@ export const appApi = createApi({
         body: payload,
       }),
       invalidatesTags: ["Apps", "UserApps"],
+      async onQueryStarted({}, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(
+            enqueueSnackbarMessage({
+              message: `App successfully updated`,
+              type: "success",
+            }),
+          );
+        } catch (error: any) {
+          dispatch(
+            enqueueSnackbarMessage({
+              message: `Failed to update app.`,
+              type: "error",
+            }),
+          );
+        }
+      },
     }),
     upsertAppFavourite: builder.mutation<void, { id: number; action: UpdateAction }>({
       query: ({ id, action }) => ({
         url: `${AppConfig.serviceUrls.apps}/${id}/${action}`,
         method: "POST",
       }),
-      // Optimistic update for better UX
+
       async onQueryStarted({ id, action }, { dispatch, queryFulfilled, getState }) {
-        // Get the current user email from state to update the right cache
-        const state = getState() as any;
-        const userEmail = state.user?.userInfo?.workEmail;
+        const state = getState() as RootState;
+        const userInfoResult = userApi.endpoints.getUserInfo.select()(state);
+        const userEmail = userInfoResult?.data?.workEmail;
+
+        console.log("user email : ", userEmail);
 
         if (userEmail) {
           const patchResult = dispatch(
@@ -132,8 +173,22 @@ export const appApi = createApi({
 
           try {
             await queryFulfilled;
+            dispatch(
+              enqueueSnackbarMessage({
+                message: `App ${action === UpdateAction.Favorite ? "added to" : "removed from"} favourites`,
+                type: "success",
+                autoHideDuration: 1000,
+              }),
+            );
           } catch {
             patchResult.undo();
+            dispatch(
+              enqueueSnackbarMessage({
+                message: `Failed to ${action === UpdateAction.Favorite ? "add to" : "remove from"} favourites.`,
+                type: "error",
+                autoHideDuration: 1000,
+              }),
+            );
           }
         }
       },

@@ -18,6 +18,7 @@ import { createApi } from "@reduxjs/toolkit/query/react";
 
 import { AppConfig } from "@config/config";
 
+import { enqueueSnackbarMessage } from "@slices/commonSlice/common";
 import { baseQueryWithRetry } from "./BaseQuery";
 
 interface SupportTeamEmail {
@@ -65,6 +66,24 @@ export const configApi = createApi({
         headers: { "Content-Type": "application/json" },
       }),
       invalidatesTags: ["Theme"],
+      async onQueryStarted(activeTheme, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(
+            enqueueSnackbarMessage({
+              message: `Theme successfully changed to '${activeTheme}'`,
+              type: "success",
+            }),
+          );
+        } catch (error: any) {
+          dispatch(
+            enqueueSnackbarMessage({
+              message: `Failed to change theme.`,
+              type: "error",
+            }),
+          );
+        }
+      },
     }),
     getTheme: builder.query<ThemeConfig | null, void>({
       query: () => AppConfig.serviceUrls.theme,
