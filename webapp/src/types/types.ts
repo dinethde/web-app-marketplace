@@ -13,7 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import type { BasicUserInfo, DecodedIDTokenPayload } from "@asgardeo/auth-spa";
+import type { DecodedIDTokenPayload } from "@asgardeo/auth-spa";
 import type { NonIndexRouteObject } from "react-router-dom";
 
 export type NavState = {
