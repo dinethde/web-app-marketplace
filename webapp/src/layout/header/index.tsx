@@ -13,43 +13,22 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import {
-  Avatar,
-  Box,
-  Menu,
-  MenuItem,
-  Stack,
-  Tooltip,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
+import { UserDropdown } from "@asgardeo/react";
+import { Box, Stack, useMediaQuery, useTheme } from "@mui/material";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 
-import React from "react";
-
 import Wso2Logo from "@assets/images/wso2-logo.svg";
 import { APP_NAME } from "@config/config";
-import { useAppAuthContext } from "@context/AuthContext";
 import BasicBreadcrumbs from "@layout/BreadCrumbs/BreadCrumbs";
 import { userApi } from "@services/user.api";
 import { useAppSelector } from "@slices/store";
 
 const Header = () => {
-  const authContext = useAppAuthContext();
   const theme = useTheme();
-  const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
 
   const user = useAppSelector((state) => userApi.endpoints.getUserInfo.select()(state)?.data);
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-
-  const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorElUser(event.currentTarget);
-  };
-
-  const handleCloseUserMenu = () => {
-    setAnchorElUser(null);
-  };
 
   return (
     <Box
@@ -98,6 +77,7 @@ const Header = () => {
           >
             {APP_NAME}
           </Typography>
+
           <BasicBreadcrumbs />
         </Box>
 
@@ -105,21 +85,7 @@ const Header = () => {
           {user && (
             <>
               <Stack flexDirection={"row"} alignItems={"center"} gap={1}>
-                <Tooltip title="Open settings">
-                  <Avatar
-                    onClick={handleOpenUserMenu}
-                    sx={{
-                      width: 48,
-                      height: 48,
-                      border: 1,
-                      borderColor: theme.palette.customBorder.territory.active,
-                    }}
-                    src={user.employeeThumbnail || ""}
-                    alt={user.firstName || "Avatar"}
-                  >
-                    {user.firstName?.charAt(0)}
-                  </Avatar>
-                </Tooltip>
+                <UserDropdown avatarSize={44} />
 
                 {!isMobile && (
                   <Box sx={{ width: "fit-content" }}>
@@ -145,32 +111,6 @@ const Header = () => {
                   </Box>
                 )}
               </Stack>
-
-              <Menu
-                sx={{ mt: "45px" }}
-                id="menu-appbar"
-                anchorEl={anchorElUser}
-                anchorOrigin={{
-                  vertical: "top",
-                  horizontal: "right",
-                }}
-                keepMounted
-                transformOrigin={{
-                  vertical: "top",
-                  horizontal: "right",
-                }}
-                open={Boolean(anchorElUser)}
-                onClose={handleCloseUserMenu}
-              >
-                <MenuItem
-                  key={"logout"}
-                  onClick={() => {
-                    authContext.appSignOut();
-                  }}
-                >
-                  <Typography textAlign="center">Logout</Typography>
-                </MenuItem>
-              </Menu>
             </>
           )}
         </Box>
