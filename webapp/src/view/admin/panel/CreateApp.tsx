@@ -15,6 +15,8 @@
 // under the License.
 import { Alert, Box, Button } from "@mui/material";
 
+import ErrorHandler from "@component/common/ErrorHandler";
+import PreLoader from "@component/common/PreLoader";
 import { useGetUserGroupsQuery } from "@services/groups.api";
 import { useGetTagsQuery } from "@services/tag.api";
 
@@ -26,11 +28,23 @@ import UserGroupSelector from "./components/create-app/UserGroupSelector";
 import { useCreateApp } from "./hooks/useCreateApp";
 
 export default function CreateApp() {
-  const { data: tags = [] } = useGetTagsQuery();
-  const { data: groups = [] } = useGetUserGroupsQuery();
+  const { data: tags = [], isLoading: tagsLoading } = useGetTagsQuery();
+  const {
+    data: groups = [],
+    isLoading: groupsLoading,
+    isError: groupsError,
+  } = useGetUserGroupsQuery();
 
   const { formik, filePreview, setFilePreview, isCreating, isError, error, handleCancel } =
     useCreateApp();
+
+  if (tagsLoading || groupsLoading) {
+    return <PreLoader isLoading message="Loading admin view ... " />;
+  }
+
+  if (groupsError) {
+    return <ErrorHandler message="Error while loading groups" />;
+  }
 
   return (
     <Box
