@@ -1,4 +1,4 @@
-// Copyright (c) 2025 WSO2 LLC. (https://www.wso2.com).
+// Copyright (c) 2026 WSO2 LLC. (https://www.wso2.com).
 //
 // WSO2 LLC. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -13,19 +13,11 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import { lazy } from "react";
 
-const home = lazy(() => import("@view/home/home"));
-const profile = lazy(() => import("@view/profile/profile"));
-const admin = lazy(() => import("@view/admin/Admin"));
-const help = lazy(() => import("@view/help/Help"));
-const favourites = lazy(() => import("@view/favourites/Favourite"));
-const appConfig = lazy(() => import("@view/app-config/AppConfig"));
-
-export const View = {
-  home,
-  help,
-  favourites,
-  profile,
-  admin,
-};
+# Retrieves groups from the SCIM service based on the provided filter criteria.
+#
+# + filter - The filter criteria to search for groups
+# + return - A GroupSearchResult containing the search results or an error if the operation fails
+public isolated function getGroups(Filter filter) returns GroupSearchResult|error {
+    return scimOperationsClient->/organizations/internal/groups/search.post(filter);
+}

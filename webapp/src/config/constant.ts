@@ -29,7 +29,7 @@ export const SnackMessage = {
   warning: {},
 };
 
-export const APP_DESC = "Web App Store";
+export const APP_DESC = "Discover and access all your wso2 applications in one place.";
 
 export const redirectUrl = "web-app-marketplace-redirect-url";
 
