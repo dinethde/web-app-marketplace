@@ -18,6 +18,7 @@ import type { BaseQueryFn, FetchArgs, FetchBaseQueryError } from "@reduxjs/toolk
 import { Mutex } from "async-mutex";
 
 import { SERVICE_BASE_URL } from "@config/config";
+import { MAX_RETRIES, RETRYABLE_STATUSES } from "@config/constant";
 
 let ACCESS_TOKEN: string;
 let REFRESH_TOKEN_CALLBACK: (() => Promise<{ accessToken: string }>) | null;
@@ -86,27 +87,31 @@ export const baseQueryWithReauth: BaseQueryFn<
   return result;
 };
 
+function isRetryableStatus(error: FetchBaseQueryError): boolean {
+  if (typeof error.status === "number") {
+    return RETRYABLE_STATUSES.includes(error.status);
+  }
+  if (error.status === "PARSING_ERROR" && "originalStatus" in error) {
+    return RETRYABLE_STATUSES.includes(error.originalStatus);
+  }
+  return false;
+}
+
 /*
  * Base query with retry logic and automatic token refresh
  * Retries failed requests up to 3 times
  */
 export const baseQueryWithRetry = retry(
   async (args: string | FetchArgs, api, extraOptions) => {
-    const result = await baseQueryWithReauth(args, api, extraOptions);
-
-    if (result.error) {
-      if (result.error.status !== 400 && result.error.status !== 404) {
-        retry.fail(result.error, result.meta);
-      }
-    }
-
-    return result;
+    return baseQueryWithReauth(args, api, extraOptions);
   },
   {
-    maxRetries: 3,
-    backoff: async (attempt: number = 0, maxRetries: number = 3) => {
-      const delay = Math.min(1000 * 2 ** attempt, 10000);
-      await new Promise((resolve) => setTimeout(resolve, delay));
+    retryCondition: (
+      error: unknown,
+      _args: string | FetchArgs,
+      { attempt }: { attempt: number },
+    ) => {
+      return attempt <= MAX_RETRIES && isRetryableStatus(error as FetchBaseQueryError);
     },
   },
 );
