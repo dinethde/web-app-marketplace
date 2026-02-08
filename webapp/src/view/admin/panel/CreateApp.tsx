@@ -14,93 +14,26 @@
 // specific language governing permissions and limitations
 // under the License.
 import { Alert, Box, Button } from "@mui/material";
-import { useFormik } from "formik";
 
-import { useState } from "react";
-
-import { CreateAppPayload, useCreateAppMutation } from "@root/src/services/app.api";
-import { useGetUserGroupsQuery } from "@root/src/services/groups.api";
-import { useGetTagsQuery } from "@root/src/services/tag.api";
-import { useGetUserInfoQuery } from "@root/src/services/user.api";
-
-import { validationSchema } from "../utils/createAppSchema";
 import AppStatusToggle from "./components/create-app/AppStatusToggle";
 import FileUploadArea from "./components/create-app/FileUploadArea";
 import LabeledTextField from "./components/create-app/LabeledTextField";
 import TagSelector from "./components/create-app/TagSelector";
 import UserGroupSelector from "./components/create-app/UserGroupSelector";
-
-interface FileWithPreview {
-  file: File;
-  preview: string;
-  uploading: boolean;
-  progress: number;
-  error: string | null;
-}
+import { useCreateApp } from "./hooks/useCreateApp";
 
 export default function CreateApp() {
-  // RTK Query hooks
-  const { data: userInfo } = useGetUserInfoQuery();
-  const { data: tags = [] } = useGetTagsQuery();
-  const { data: groups = [] } = useGetUserGroupsQuery();
-  const [createAppMutation, { isLoading: isCreating, isError, error }] = useCreateAppMutation();
-
-  const [filePreview, setFilePreview] = useState<FileWithPreview | null>(null);
-  const userEmail = userInfo?.workEmail ?? "";
-
-  const formik = useFormik({
-    initialValues: {
-      title: "",
-      description: "",
-      link: "",
-      versionName: "",
-      tags: [] as number[],
-      groupIds: [] as string[],
-      icon: null as File | null,
-      isActive: true,
-    },
-    validationSchema,
-    onSubmit: async (values) => {
-      if (!values.icon) return;
-
-      // Convert icon file to base64 string
-      const reader = new FileReader();
-      reader.readAsDataURL(values.icon);
-      reader.onload = async () => {
-        const base64Icon = reader.result as string;
-
-        const payload: CreateAppPayload = {
-          name: values.title.trim(),
-          url: values.link.trim(),
-          description: values.description.trim(),
-          versionName: values.versionName.trim(),
-          tags: values.tags,
-          icon: base64Icon,
-          userGroups: values.groupIds,
-          isActive: values.isActive,
-          addedBy: userEmail,
-        };
-
-        try {
-          await createAppMutation(payload).unwrap();
-          formik.resetForm();
-          setFilePreview(null);
-        } catch (error) {
-          formik.resetForm();
-          console.error("Failed to create app:", error);
-        }
-      };
-
-      reader.onerror = () => {
-        formik.setFieldError("icon", "Failed to read icon file");
-      };
-    },
-  });
-
-  const handleCancel = () => {
-    formik.resetForm();
-    setFilePreview(null);
-  };
+  const {
+    formik,
+    tags,
+    groups,
+    filePreview,
+    setFilePreview,
+    isCreating,
+    isError,
+    error,
+    handleCancel,
+  } = useCreateApp();
 
   return (
     <Box
