@@ -45,8 +45,6 @@ const initialValues = {
 
 export function useCreateApp() {
   const { data: userInfo } = useGetUserInfoQuery();
-  const { data: tags = [] } = useGetTagsQuery();
-  const { data: groups = [] } = useGetUserGroupsQuery();
   const [createAppMutation, { isLoading: isCreating, isError, error }] = useCreateAppMutation();
 
   const [filePreview, setFilePreview] = useState<FileWithPreview | null>(null);
@@ -98,8 +96,6 @@ export function useCreateApp() {
 
   return {
     formik,
-    tags,
-    groups,
     filePreview,
     setFilePreview,
     isCreating,

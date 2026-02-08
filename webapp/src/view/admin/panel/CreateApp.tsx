@@ -15,6 +15,9 @@
 // under the License.
 import { Alert, Box, Button } from "@mui/material";
 
+import { useGetUserGroupsQuery } from "@services/groups.api";
+import { useGetTagsQuery } from "@services/tag.api";
+
 import AppStatusToggle from "./components/create-app/AppStatusToggle";
 import FileUploadArea from "./components/create-app/FileUploadArea";
 import LabeledTextField from "./components/create-app/LabeledTextField";
@@ -23,17 +26,11 @@ import UserGroupSelector from "./components/create-app/UserGroupSelector";
 import { useCreateApp } from "./hooks/useCreateApp";
 
 export default function CreateApp() {
-  const {
-    formik,
-    tags,
-    groups,
-    filePreview,
-    setFilePreview,
-    isCreating,
-    isError,
-    error,
-    handleCancel,
-  } = useCreateApp();
+  const { data: tags = [] } = useGetTagsQuery();
+  const { data: groups = [] } = useGetUserGroupsQuery();
+
+  const { formik, filePreview, setFilePreview, isCreating, isError, error, handleCancel } =
+    useCreateApp();
 
   return (
     <Box
