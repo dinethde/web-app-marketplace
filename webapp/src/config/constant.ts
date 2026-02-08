@@ -29,6 +29,10 @@ export const SnackMessage = {
   warning: {},
 };
 
+export const RETRYABLE_STATUSES = [400, 404];
+
+export const MAX_RETRIES = 3;
+
 export const APP_DESC = "Discover and access all your wso2 applications in one place.";
 
 export const redirectUrl = "web-app-marketplace-redirect-url";
