@@ -16,11 +16,11 @@
 import { lazy } from "react";
 
 const home = lazy(() => import("@view/home/home"));
-const help = lazy(() => import("@view/help/help"));
-const favourites = lazy(() => import("@view/favourites/favourite"));
 const profile = lazy(() => import("@view/profile/profile"));
-const admin = lazy(() => import("@view/admin/admin"));
-const appConfig = lazy(() => import("@view/appConfig/appConfig"));
+const admin = lazy(() => import("@view/admin/Admin"));
+const help = lazy(() => import("@view/help/Help"));
+const favourites = lazy(() => import("@view/favourites/Favourite"));
+const appConfig = lazy(() => import("@view/app-config/AppConfig"));
 
 export const View = {
   home,
