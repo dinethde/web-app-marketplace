@@ -18,7 +18,7 @@ import { FormikProps } from "formik";
 
 import { memo } from "react";
 
-import { Tag } from "@root/src/services/tag.api";
+import { Tag } from "@services/tag.api";
 
 interface TagSelectorProps {
   formik: FormikProps<any>;

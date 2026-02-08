@@ -36,6 +36,7 @@ const AppStatusToggle = ({ formik, isDisabled }: AppStatusToggleProps) => {
       }}
     >
       <Typography>App Status</Typography>
+
       <FormControlLabel
         sx={{ ml: "0px" }}
         label={

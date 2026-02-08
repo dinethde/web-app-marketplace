@@ -15,8 +15,9 @@
 // under the License.
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 
-import TabsPage from "@root/src/layout/pages/TabsPage";
-import UserGuide from "@view/help/panel/userGuide";
+import TabsPage from "@layout/pages/TabsPage";
+
+import UserGuide from "./panel/UserGuide";
 
 export default function Help() {
   return (

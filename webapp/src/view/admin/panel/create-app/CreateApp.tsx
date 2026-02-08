@@ -86,6 +86,7 @@ export default function CreateApp() {
           formik.resetForm();
           setFilePreview(null);
         } catch (error) {
+          formik.resetForm();
           console.error("Failed to create app:", error);
         }
       };

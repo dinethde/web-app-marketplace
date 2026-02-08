@@ -19,9 +19,9 @@ import StyleOutlinedIcon from "@mui/icons-material/StyleOutlined";
 
 import TabsPage from "@layout/pages/TabsPage";
 
-import CreateApp from "./panel/create-app/createApp";
-import CreateTags from "./panel/createTags";
-import UpdateApp from "./panel/updateApp";
+import CreateTags from "./panel/CreateTags";
+import UpdateApp from "./panel/UpdateApp";
+import CreateApp from "./panel/create-app/CreateApp";
 
 export default function Admin() {
   return (
