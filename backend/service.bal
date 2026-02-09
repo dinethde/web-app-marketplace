@@ -22,10 +22,14 @@ import ballerina/cache;
 import ballerina/http;
 import ballerina/log;
 
+// User info cache
 final cache:Cache cache = new ({
     defaultMaxAge: 86400.0,
     evictionFactor: 0.2
 });
+
+// User groups cache
+final cache:Cache cacheGroups = new ({defaultMaxAge: 300});
 
 @display {
     label: "Web_App_Marketplace Service",
@@ -350,13 +354,22 @@ service http:InterceptableService / on new http:Listener(9090) {
             };
         }
 
+        # Results are cached for 5 minutes to reduce SCIM calls.
+        final string GROUPS_CACHE_KEY = "user-groups";
+        if cacheGroups.hasKey(GROUPS_CACHE_KEY) {
+            string[]|error cachedGroups = cacheGroups.get(GROUPS_CACHE_KEY).ensureType();
+            if cachedGroups is string[] {
+                return cachedGroups;
+            }
+        }
+
         Filter filter = {
             filter: null
         };
 
-        GroupSearchResult|error skimGroups = scim:getGroups(filter);
-        if skimGroups is error {
-            log:printError("Error retrieving user groups : ", skimGroups);
+        GroupSearchResult|error scimGroups = scim:getGroups(filter);
+        if scimGroups is error {
+            log:printError("Error retrieving user groups : ", scimGroups);
             return <http:InternalServerError> {
                 body:  {
                     message: "Error retrieving user groups"
@@ -365,11 +378,16 @@ service http:InterceptableService / on new http:Listener(9090) {
         }
 
         string[] userGroups = [];
-        foreach Group groups in skimGroups.Resources {
+        foreach Group groups in scimGroups.Resources {
             userGroups.push(groups.displayName.substring(8));
         }
 
-        return userGroups; 
+        error? cacheError = cacheGroups.put(GROUPS_CACHE_KEY, userGroups);
+        if cacheError is error {
+            log:printError("Error writing user groups to cache", cacheError);
+        }
+
+        return userGroups;
     }
 
     # Get tags.
