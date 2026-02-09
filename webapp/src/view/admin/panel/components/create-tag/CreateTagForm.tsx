@@ -60,7 +60,6 @@ export default function CreateTagForm() {
         await createTagMutation(requestPayload).unwrap();
         formik.resetForm();
       } catch (error) {
-        formik.resetForm();
         console.error("Failed to create tag:", error);
       }
     },
