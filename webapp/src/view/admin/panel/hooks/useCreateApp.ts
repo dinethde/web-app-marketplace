@@ -1,4 +1,4 @@
-// Copyright (c) 2025 WSO2 LLC. (https://www.wso2.com).
+// Copyright (c) 2026 WSO2 LLC. (https://www.wso2.com).
 //
 // WSO2 LLC. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -18,8 +18,6 @@ import { useFormik } from "formik";
 import { useState } from "react";
 
 import { CreateAppPayload, useCreateAppMutation } from "@services/app.api";
-import { useGetUserGroupsQuery } from "@services/groups.api";
-import { useGetTagsQuery } from "@services/tag.api";
 import { useGetUserInfoQuery } from "@services/user.api";
 
 import { validationSchema } from "../../utils/createAppSchema";
