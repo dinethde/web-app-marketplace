@@ -52,6 +52,8 @@ const AppHandler: FC = () => {
     [roles],
   );
 
+  const browserRouter = useMemo(() => createBrowserRouter(appRoutes), [appRoutes]);
+
   const renderApp = () => {
     if (appState === AppState.Loading) {
       return <PreLoader isLoading={true} message="We are getting things ready..." />;
@@ -65,7 +67,7 @@ const AppHandler: FC = () => {
       return <ErrorHandler message={statusMessage} />;
     }
 
-    return <RouterProvider router={createBrowserRouter(appRoutes)} />;
+    return <RouterProvider router={browserRouter} />;
   };
 
   return renderApp();
