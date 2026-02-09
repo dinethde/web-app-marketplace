@@ -56,10 +56,13 @@ export function useCreateApp() {
     onSubmit: async (values) => {
       if (!values.icon) return;
 
-      const reader = new FileReader();
-      reader.readAsDataURL(values.icon);
-      reader.onload = async () => {
-        const base64Icon = reader.result as string;
+      try {
+        const base64Icon = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = () => reject(new Error("Failed to read icon file"));
+          reader.readAsDataURL(values.icon!);
+        });
 
         const payload: CreateAppPayload = {
           name: values.title.trim(),
@@ -73,19 +76,16 @@ export function useCreateApp() {
           addedBy: userEmail,
         };
 
-        try {
-          await createAppMutation(payload).unwrap();
-          formik.resetForm();
-          setFilePreview(null);
-        } catch (err) {
-          formik.resetForm();
+        await createAppMutation(payload).unwrap();
+        formik.resetForm();
+        setFilePreview(null);
+      } catch (err) {
+        if (err instanceof Error && err.message === "Failed to read icon file") {
+          formik.setFieldError("icon", "Failed to read icon file");
+        } else {
           console.error("Failed to create app:", err);
         }
-      };
-
-      reader.onerror = () => {
-        formik.setFieldError("icon", "Failed to read icon file");
-      };
+      }
     },
   });
 
