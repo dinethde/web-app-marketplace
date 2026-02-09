@@ -67,6 +67,9 @@ const FileUploadArea = ({
         error: null,
       });
     };
+    reader.onerror = () => {
+      formik.setFieldError("icon", "Failed to read file");
+    };
     reader.readAsDataURL(file);
   };
 
