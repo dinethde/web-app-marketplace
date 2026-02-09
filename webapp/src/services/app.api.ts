@@ -18,8 +18,8 @@ import { createApi } from "@reduxjs/toolkit/query/react";
 import { AppConfig } from "@config/config";
 import { UpdateAction } from "@root/src/types/types";
 import { enqueueSnackbarMessage } from "@slices/commonSlice/common";
-
 import { RootState } from "@slices/store";
+
 import { baseQueryWithRetry } from "./BaseQuery";
 import { userApi } from "./user.api";
 
@@ -158,8 +158,6 @@ export const appApi = createApi({
         const state = getState() as RootState;
         const userInfoResult = userApi.endpoints.getUserInfo.select()(state);
         const userEmail = userInfoResult?.data?.workEmail;
-
-        console.log("user email : ", userEmail);
 
         if (userEmail) {
           const patchResult = dispatch(
