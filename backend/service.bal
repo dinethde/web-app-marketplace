@@ -22,6 +22,7 @@ import ballerina/cache;
 import ballerina/http;
 import ballerina/log;
 
+// User info cache
 final cache:Cache cache = new ({
     defaultMaxAge: 86400.0,
     evictionFactor: 0.2
@@ -354,9 +355,9 @@ service http:InterceptableService / on new http:Listener(9090) {
             filter: null
         };
 
-        GroupSearchResult|error skimGroups = scim:getGroups(filter);
-        if skimGroups is error {
-            log:printError("Error retrieving user groups : ", skimGroups);
+        GroupSearchResult|error scimGroups = scim:getGroups(filter);
+        if scimGroups is error {
+            log:printError("Error retrieving user groups : ", scimGroups);
             return <http:InternalServerError> {
                 body:  {
                     message: "Error retrieving user groups"
@@ -365,7 +366,7 @@ service http:InterceptableService / on new http:Listener(9090) {
         }
 
         string[] userGroups = [];
-        foreach Group groups in skimGroups.Resources {
+        foreach Group groups in scimGroups.Resources {
             userGroups.push(groups.displayName.substring(8));
         }
 
