@@ -28,7 +28,7 @@ import UserGroupSelector from "./components/create-app/UserGroupSelector";
 import { useCreateApp } from "./hooks/useCreateApp";
 
 export default function CreateApp() {
-  const { data: tags = [], isLoading: tagsLoading } = useGetTagsQuery();
+  const { data: tags = [], isLoading: tagsLoading, isError: tagsError } = useGetTagsQuery();
   const {
     data: groups = [],
     isLoading: groupsLoading,
@@ -42,8 +42,8 @@ export default function CreateApp() {
     return <PreLoader isLoading message="Loading admin view ... " />;
   }
 
-  if (groupsError) {
-    return <ErrorHandler message="Error while loading groups" />;
+  if (groupsError || tagsError) {
+    return <ErrorHandler message="Error while loading required data" />;
   }
 
   return (
