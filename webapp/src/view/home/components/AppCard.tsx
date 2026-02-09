@@ -65,10 +65,16 @@ export default function AppCard({
   const handleFavoriteClick = () => {
     const newFavoriteState = !isFavorite;
     setIsFavorite(newFavoriteState);
+
     upsertFavourite({
       id: appId,
       action: newFavoriteState ? UpdateAction.Favorite : UpdateAction.Unfavourite,
-    });
+    })
+      .unwrap()
+      .catch(() => {
+        // Revert on failure
+        setIsFavorite(!newFavoriteState);
+      });
   };
 
   const handleLaunchClick = () => {
