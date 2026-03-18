@@ -1,4 +1,4 @@
-# WSO2 App Store - User Guide
+# WSO2 Web App Marketplace - User Guide
 
 ## Getting Started
 

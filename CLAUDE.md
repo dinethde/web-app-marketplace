@@ -4,7 +4,7 @@ This file provides context for Claude Code when working in this repository.
 
 ## Project Overview
 
-**WSO2 App Store** is an open-source platform under the [wso2-open-operations](https://github.com/wso2-open-operations) organization for publishing, browsing, and managing internal web applications. It has a React frontend and a Ballerina backend service. Maintained by the **WSO2 Digital Team** (wso2-digital-team@wso2.com).
+**WSO2 Web App Marketplace** is an open-source platform under the [wso2-open-operations](https://github.com/wso2-open-operations) organization for publishing, browsing, and managing internal web applications. It has a React frontend and a Ballerina backend service. Maintained by the **WSO2 Digital Team** (wso2-digital-team@wso2.com).
 
 ## Tech Stack
 
