@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 import LoadingButton from "@mui/lab/LoadingButton";
-import { Box, Card, CardContent, Container, Divider, Stack } from "@mui/material";
+import { Box, Card, CardContent, Container, Divider, Stack, useTheme } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 
@@ -23,10 +23,12 @@ import { APP_DESC } from "@root/src/config/constant";
 import { useAppAuthContext } from "@root/src/context/AuthContext";
 import BackgroundImage from "@src/assets/images/app-login-background.png";
 import ProductLogos from "@src/assets/images/app-login-logos.png";
-import logo from "@src/assets/images/wso2-logo-black.png";
+import logoBlack from "@src/assets/icons/wso2-logo_black.svg";
+import logoWhite from "@src/assets/icons/wso2-logo_white.svg";
 
 const LoginScreen = () => {
   const { appSignIn, appSignOut } = useAppAuthContext();
+  const theme = useTheme();
 
   return (
     <Box
@@ -67,7 +69,7 @@ const LoginScreen = () => {
                 p={1}
               >
                 <Grid size={{ xs: 12 }}>
-                  <img alt="logo" width="130" height="auto" src={logo}></img>
+                  <img alt="logo" width="130" height="auto" src={theme.palette.mode === "dark" ? logoWhite : logoBlack}></img>
                 </Grid>
                 <Grid size={{ xs: 12 }}>
                   <Typography

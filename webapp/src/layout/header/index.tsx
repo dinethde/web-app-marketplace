@@ -19,7 +19,8 @@ import Typography from "@mui/material/Typography";
 
 import React from "react";
 
-import Wso2Logo from "@assets/images/wso2-logo.svg";
+import Wso2LogoBlack from "@assets/icons/wso2-logo_black.svg";
+import Wso2LogoWhite from "@assets/icons/wso2-logo_white.svg";
 import { APP_NAME } from "@config/config";
 import { useAppAuthContext } from "@context/AuthContext";
 import BasicBreadcrumbs from "@layout/BreadCrumbs/BreadCrumbs";
@@ -66,7 +67,7 @@ const Header = () => {
             maxWidth: "100px",
           }}
           onClick={() => (window.location.href = "/")}
-          src={Wso2Logo}
+          src={theme.palette.mode === "dark" ? Wso2LogoWhite : Wso2LogoBlack}
         ></img>
 
         <Box
