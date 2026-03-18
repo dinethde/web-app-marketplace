@@ -17,6 +17,7 @@ import AccountBoxOutlinedIcon from "@mui/icons-material/AccountBoxOutlined";
 import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
 import AppsIcon from "@mui/icons-material/Apps";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import type { RouteObject } from "react-router-dom";
 
 import React from "react";
@@ -57,11 +58,6 @@ export const routes: RouteObjectWithRole[] = [
     allowRoles: [Role.ADMIN],
   },
 
-  /*
-   TODO: Implement User Guide page when the user guide content is ready.
-   The /help route is commented out for now and will be re-enabled once the
-   user guide page (View.help) is implemented.
-
   {
     path: "/help",
     text: "Help",
@@ -69,8 +65,7 @@ export const routes: RouteObjectWithRole[] = [
     element: React.createElement(View.help),
     allowRoles: [Role.ADMIN, Role.EMPLOYEE],
     bottomNav: true,
-  }
-  */
+  },
 ];
 
 export const getActiveRoutesV2 = (
