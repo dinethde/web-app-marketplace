@@ -13,7 +13,10 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import { Box, Button, Container } from "@mui/material";
+import { Box, Button, Container, useTheme } from "@mui/material";
+
+import Wso2LogoBlack from "@assets/icons/wso2-logo_black.svg";
+import Wso2LogoWhite from "@assets/icons/wso2-logo_white.svg";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 
@@ -24,6 +27,7 @@ interface PreLoaderProps {
 }
 
 const StatusWithAction = (props: PreLoaderProps) => {
+  const theme = useTheme();
   return (
     <Box
       sx={{
@@ -49,7 +53,7 @@ const StatusWithAction = (props: PreLoaderProps) => {
                   alt="logo"
                   width="150"
                   height="auto"
-                  src="https://wso2.cachefly.net/wso2/sites/images/brand/downloads/wso2-logo.png"
+                  src={theme.palette.mode === "dark" ? Wso2LogoWhite : Wso2LogoBlack}
                 />
               )}
             </Grid>
